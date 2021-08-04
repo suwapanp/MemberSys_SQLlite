@@ -1,0 +1,152 @@
+﻿@model MemberSys_SQLite.Models.Members
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-right py-2">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">
+        add new member
+    </button>
+</div>
+<div class="table-responsive-lg">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Contact</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody class="small">
+            @{
+                if (ViewData["Members"] != null)
+                {
+                    int r = 0;
+                    foreach (var i in (IEnumerable<Members>)ViewData["Members"])
+                    {
+                        r += 1;
+                        <tr>
+                            <th scope="row">@r</th>
+                            <td>
+                                @i.Name <span class="badge badge-success">@i.Age</span>
+                            </td>
+                            <td>
+                                @i.Address <span class="badge badge-secondary">@i.Province</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-primary">Email : @i.Email</span>
+                                <span class="badge badge-info">Phone : @i.Phone</span>
+                            </td>
+                            <td class="text-right">
+                                <a href="javascript:void(0);" id="btnEdit" role="button" class="btn btn-warning btn-sm" data-id="@i.ID">Edit | Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Form</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formMember" asp-action="Members">
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label>Name</label>
+                            <input id="name" type="text" class="form-control" required asp-for="Name">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Age</label>
+                            <input id="age" type="number" class="form-control" min="1" max="100" required asp-for="Age">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input id="address" type="text" class="form-control" placeholder="1234 Main St" required asp-for="Address">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="inputState">Province</label>
+                            <select id="province" class="form-control" required asp-for="Province">
+                                <option selected value="">Choose...</option>
+                                <option value="Bangkok">Bangkok</option>
+                                <option value="Nonthaburi">Nonthaburi</option>
+                                <option value="Samut Prakan">Samut Prakan</option>
+                                <option value="Nakhon Pathom">Nakhon Pathom</option>
+                                <option value="Pathum Thani">Pathum Thani</option>
+                                <option value="Samut Sakhon">Samut Sakhon</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Email</label>
+                            <input id="email" type="email" class="form-control" required asp-for="Email">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Phone</label>
+                            <input id="phone" type="text" class="form-control" required asp-for="Phone">
+                        </div>
+                    </div>
+
+                    <input id="fnType" name="fnType" type="hidden" value="insert" />
+                    <input id="id" type="hidden" asp-for="ID" value="0" />
+                </form>
+                <div class="d-sm-flex align-items-center justify-content-between">
+                    <button id="deleted" type="submit" value="deleted" form="formMember" asp-action="DelMembers" asp-controller="Home" class="btn btn-outline-danger btn-sm" disabled>DELETE</button>
+                    <div class="text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="submit" type="submit" value="submit" form="formMember" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+                $(function () {
+                    $("body").on('click', '#btnEdit', function () {
+                        var data_id = $(this).attr('data-id');
+                        $.ajax({
+                            url: "@Url.Action("MembersData", "Home")",
+                            data: JSON.stringify(data_id),
+                            type: 'POST',
+                            dataType: 'html',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (response) {
+
+                                /*alert(response);*/
+
+                                $('#id').val(JSON.parse(response).id);
+                                $('#name').val(JSON.parse(response).name);
+                                $('#age').val(JSON.parse(response).age);
+                                $('#address').val(JSON.parse(response).address);
+                                $('#province').val(JSON.parse(response).province);
+                                $('#email').val(JSON.parse(response).email);
+                                $('#phone').val(JSON.parse(response).phone);
+                                $('#fnType').val("update");
+
+                                $("#staticBackdrop").modal("show");
+                                $('#deleted').prop("disabled", false);
+                            },
+                            error: function (error) {
+                            }
+                        });
+                    });
+                });
+    </script>
+}
