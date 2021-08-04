@@ -30,13 +30,13 @@ namespace MemberSys_SQLite.Controllers
             {
                 if (fnType.ToLower() == "insert")
                 {
-                    int id = 1;
-                    var result = from c in _context.Members
-                                 select c;
+                    Random random = new Random();
 
-                    if (result != null)
+                    int id = random.Next(100,100000);
+
+                    if (_context.Members.Any(x=>x.ID == id))
                     {
-                        id = result.Select(x => x.ID).Max() + 1;
+                        id = random.Next(100, 100000);
                     }
 
                     members.ID = id;
